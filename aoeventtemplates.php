@@ -1,5 +1,5 @@
 <?php
-define('TEMPLATE_ID', 4);
+define('TEMPLATE_ID', 327);
 define('WAIVER_5', 322);
 
 require_once 'aoeventtemplates.civix.php';
@@ -109,6 +109,37 @@ function aoeventtemplates_civicrm_alterSettingsFolders(&$metaDataFolders = NULL)
   _aoeventtemplates_civix_civicrm_alterSettingsFolders($metaDataFolders);
 }
 
+function aoeventtemplates_civicrm_buildAmount($pageType, &$form, &$amount) {
+  if (get_class($form) == "CRM_Event_Form_Registration_Register") {
+    $templateId = civicrm_api3('Event', 'get', [
+      'id' => $form->_eventId,
+      'return.custom_' . TEMPLATE_ID => 1,
+    ])['values'][$form->_eventId]['custom_' . TEMPLATE_ID];
+    if ($templateId) {
+      $template = getEventTemplates($templateId);
+      $zeroTemplates = [
+        'Community Awareness',
+ 	'SLO Evidence Based Programs',
+	'SLO Health & Fitness',
+	'SLO Recreation',
+	'SLO Skill Building',
+	'SLO Support Groups - Facilitated',
+	'SLO Support Groups - Meetup',
+	'Workshop Community Training',
+      ];
+      if (in_array($template, $zeroTemplates)) {
+        $form->assign('zeroPrice', TRUE);
+        foreach ($amount as $key => &$val) {
+          $val['is_display_amounts'] = 0;
+          foreach ($val['options'] as $pid => &$pf) {
+            $pf['amount'] = 0.00;
+          }
+        }
+      }
+    }
+  } 
+}
+
 /**
  * Implementation of hook_civicrm_buildForm
  *
@@ -142,22 +173,16 @@ function getEventTemplates($id) {
  */
 function aoeventtemplates_civicrm_postProcess($formName, &$form) {
   if ($formName == "CRM_Event_Form_ManageEvent_EventInfo" && !empty($form->getVar('_templateId'))) {
-    CRM_Core_Session::singleton()->set('eventTemplateId', $form->getVar('_templateId'));
+    $eventId = CRM_Core_Session::singleton()->get('eventId');
+    civicrm_api3('CustomValue', 'create', [
+      'entity_id' => $eventId,
+      'custom_' . TEMPLATE_ID => $form->getVar('_templateId'),
+    ]);
   }
 }
 
-/**
- * Implementation of hook_civicrm_postSave
- *
- * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_postSave
- */
-function aoeventtemplates_civicrm_postSave_civicrm_event($dao) {
-  $templateId = CRM_Core_Session::singleton()->get('eventTemplateId');
-  if ($templateId) {
-    civicrm_api3('CustomValue', 'create', [
-      'entity_id' => $dao->id,
-      'custom_' . TEMPLATE_ID => $templateId,
-    ]);
-    CRM_Core_Session::singleton()->set('eventTemplateId', '');
+function aoeventtemplates_civicrm_post($op, $objectName, $objectId, &$objectRef) {
+  if ($op == 'create' && $objectName == 'Event') {
+    CRM_Core_Session::singleton()->set('eventId', $objectId);    
   }
 }
