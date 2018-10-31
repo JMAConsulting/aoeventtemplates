@@ -119,13 +119,13 @@ function aoeventtemplates_civicrm_buildAmount($pageType, &$form, &$amount) {
       $template = getEventTemplates($templateId);
       $zeroTemplates = [
         'Community Awareness',
- 	'SLO Evidence Based Programs',
-	'SLO Health & Fitness',
-	'SLO Recreation',
-	'SLO Skill Building',
-	'SLO Support Groups - Facilitated',
-	'SLO Support Groups - Meetup',
-	'Workshop Community Training',
+ 	      'SLO Evidence Based Programs',
+        'SLO Health & Fitness',
+        'SLO Recreation',
+        'SLO Skill Building',
+        'SLO Support Groups - Facilitated',
+        'SLO Support Groups - Meetup',
+        'Workshop Community Training',
       ];
       if (in_array($template, $zeroTemplates)) {
         $form->assign('zeroPrice', TRUE);
@@ -158,6 +158,98 @@ function aoeventtemplates_civicrm_buildForm($formName, &$form) {
         'template' => 'CRM/AO/EventTemplate.tpl',
       ));
     }
+  }
+  // Set frozen fields.
+  if ($formName == "CRM_Event_Form_ManageEvent_EventInfo" && !$form->getVar('is_template')) {
+    $freezeElements = [
+      'event_type_id',
+      'default_role_id',
+      'is_public',
+      'is_share',
+      'participant_listing_id',
+    ];
+    $form->freeze($freezeElements);
+    $form->addRule('start_date', ts('Please enter the event start date.'), 'required');
+    $form->addRule('end_date', ts('Please enter the event end date'), 'required');
+    $form->addRule('start_date_time', ts('Please enter the event start time.'), 'required');
+    $form->addRule('end_date_time', ts('Please enter the event end time.'), 'required');
+    CRM_Core_Resources::singleton()->addScript(
+      "CRM.$(function($) {
+        $( document ).ajaxComplete(function( event, xhr, settings ) {
+          $('.custom-group-Event_Template').hide();
+        });
+      });"
+    );
+  }
+  if ($formName == "CRM_Event_Form_ManageEvent_Location" && !$form->getVar('is_template')) {
+    $form->addRule('email[1][email]', ts('Please enter an email.'), 'required');
+    $form->addRule('phone[1][phone]', ts('Please enter phone number.'), 'required');
+  }
+  if ($formName == "CRM_Event_Form_ManageEvent_Fee" && !$form->getVar('is_template')) {
+    $freezeElements = [
+      'is_monetary',
+      'financial_type_id',
+      'price_set_id',
+      'is_pay_later',
+      'payment_processor',
+      'fee_label',
+    ];
+    $form->freeze($freezeElements);
+  }
+  if ($formName == "CRM_Event_Form_ManageEvent_Registration" && !$form->getVar('is_template')) {
+    $freezeElements = [
+      'is_online_registration',
+      'registration_link_text',
+      'is_multiple_registrations',
+      'allow_same_participant_emails',
+      'dedupe_rule_group_id',
+      'expiration_time',
+      'selfcancelxfer_time',
+      'confirm_title',
+      'confirm_text',
+      'confirm_footer_text',
+      'thankyou_title',
+      'thankyou_text',
+      'thankyou_footer_text',
+      'confirm_email_text',
+      'confirm_from_name',
+      'confirm_from_email',
+    ];
+    $form->freeze($freezeElements);
+    CRM_Core_Resources::singleton()->addScript(
+      "CRM.$(function($) {
+        $('#registration_screen').find('table').next().hide();
+      });"
+    );
+  }
+  if ($formName == "CRM_Event_Form_ManageEvent_ScheduleReminders" && !$form->getVar('is_template')) {
+    CRM_Core_Resources::singleton()->addScript(
+      "CRM.$(function($) {
+        $('.action-link').hide();
+        $('.crm-scheduleReminders-is_active').next('td').hide();
+      });"
+    );
+  }
+  if ($formName == "CRM_Friend_Form_Event" && !$form->getVar('is_template')) {
+    $freezeElements = [
+      'tf_is_active',
+      'tf_title',
+      'intro',
+      'suggested_message',
+      'general_link',
+      'tf_thankyou_title',
+      'tf_thankyou_text',
+    ];
+    $form->freeze($freezeElements);
+  }
+  if ($formName == "CRM_PCP_Form_Event" && !$form->getVar('is_template')) {
+    CRM_Core_Resources::singleton()->addScript(
+      "CRM.$(function($) {
+        $( document ).ajaxComplete(function( event, xhr, settings ) {
+          $('#pcp_active').attr('disabled', true);
+        });
+      });"
+    );
   }
 }
 
