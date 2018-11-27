@@ -202,19 +202,18 @@ function aoeventtemplates_civicrm_buildForm($formName, &$form) {
 
   $current_user = \Drupal::currentUser();
   $roles = $current_user->getRoles();
-  if (array_search('administrator', $roles)) {
-    return;
-  }
   // Set frozen fields.
   if ($formName == "CRM_Event_Form_ManageEvent_EventInfo" && !$form->getVar('_isTemplate')) {
-    $freezeElements = [
-      'event_type_id',
-      'default_role_id',
-      'is_public',
-      'is_share',
-      'participant_listing_id',
-    ];
-    $form->freeze($freezeElements);
+    if (!array_search('administrator', $roles)) {
+      $freezeElements = [
+        'event_type_id',
+        'default_role_id',
+        'is_public',
+        'is_share',
+        'participant_listing_id',
+      ];
+      $form->freeze($freezeElements);
+    }
     $form->addRule('start_date', ts('Please enter the event start date.'), 'required');
     $form->addRule('end_date', ts('Please enter the event end date'), 'required');
     $form->addRule('start_date_time', ts('Please enter the event start time.'), 'required');
@@ -232,71 +231,81 @@ function aoeventtemplates_civicrm_buildForm($formName, &$form) {
     $form->addRule('phone[1][phone]', ts('Please enter phone number.'), 'required');
   }
   if ($formName == "CRM_Event_Form_ManageEvent_Fee" && !$form->getVar('_isTemplate')) {
-    $freezeElements = [
-      'is_monetary',
-      'financial_type_id',
-      'price_set_id',
-      'is_pay_later',
-      'payment_processor',
-      'fee_label',
-    ];
-    $form->freeze($freezeElements);
+    if (!array_search('administrator', $roles)) {
+      $freezeElements = [
+        'is_monetary',
+        'financial_type_id',
+        'price_set_id',
+        'is_pay_later',
+        'payment_processor',
+        'fee_label',
+      ];
+      $form->freeze($freezeElements);
+    }
   }
   if ($formName == "CRM_Event_Form_ManageEvent_Registration" && !$form->getVar('_isTemplate')) {
-    $freezeElements = [
-      'registration_link_text',
-      'is_multiple_registrations',
-      'allow_same_participant_emails',
-      'dedupe_rule_group_id',
-      'expiration_time',
-      'selfcancelxfer_time',
-      'allow_selfcancelxfer',
-      'confirm_title',
-      'confirm_text',
-      'confirm_footer_text',
-      'thankyou_title',
-      'thankyou_text',
-      'thankyou_footer_text',
-      'confirm_email_text',
-      'confirm_from_name',
-      'confirm_from_email',
-    ];
-    $form->freeze($freezeElements);
-    CRM_Core_Resources::singleton()->addScript(
-      "CRM.$(function($) {
-        $('#registration_screen').find('table').next().hide();
-        $('#is_online_registration').attr('disabled', true);
-      });"
-    );
+    if (!array_search('administrator', $roles)) {
+      $freezeElements = [
+        'registration_link_text',
+        'is_multiple_registrations',
+        'allow_same_participant_emails',
+        'dedupe_rule_group_id',
+        'expiration_time',
+        'selfcancelxfer_time',
+        'allow_selfcancelxfer',
+        'confirm_title',
+        'confirm_text',
+        'confirm_footer_text',
+        'thankyou_title',
+        'thankyou_text',
+        'thankyou_footer_text',
+        'confirm_email_text',
+        'confirm_from_name',
+        'confirm_from_email',
+      ];
+      $form->freeze($freezeElements);
+      CRM_Core_Resources::singleton()->addScript(
+        "CRM.$(function($) {
+           $('#registration_screen').find('table').next().hide();
+           $('#is_online_registration').attr('disabled', true);
+        });"
+      );
+    }
   }
   if ($formName == "CRM_Event_Form_ManageEvent_ScheduleReminders" && !$form->getVar('_isTemplate')) {
-    CRM_Core_Resources::singleton()->addScript(
-      "CRM.$(function($) {
-        $('.action-link').hide();
-        $('.crm-scheduleReminders-is_active').next('td').hide();
-      });"
-    );
+    if (!array_search('administrator', $roles)) {
+      CRM_Core_Resources::singleton()->addScript(
+        "CRM.$(function($) {
+           $('.action-link').hide();
+           $('.crm-scheduleReminders-is_active').next('td').hide();
+        });"
+      );
+    }
   }
   if ($formName == "CRM_Friend_Form_Event" && !$form->getVar('_isTemplate')) {
-    $freezeElements = [
-      'tf_is_active',
-      'tf_title',
-      'intro',
-      'suggested_message',
-      'general_link',
-      'tf_thankyou_title',
-      'tf_thankyou_text',
-    ];
-    $form->freeze($freezeElements);
+    if (!array_search('administrator', $roles)) {
+      $freezeElements = [
+        'tf_is_active',
+        'tf_title',
+        'intro',
+        'suggested_message',
+        'general_link',
+        'tf_thankyou_title',
+        'tf_thankyou_text',
+      ];
+      $form->freeze($freezeElements);
+    }
   }
   if ($formName == "CRM_PCP_Form_Event" && !$form->getVar('_isTemplate')) {
-    CRM_Core_Resources::singleton()->addScript(
-      "CRM.$(function($) {
-        $( document ).ajaxComplete(function( event, xhr, settings ) {
-          $('#pcp_active').attr('disabled', true);
-        });
-      });"
-    );
+    if (!array_search('administrator', $roles)) {
+      CRM_Core_Resources::singleton()->addScript(
+        "CRM.$(function($) {
+           $( document ).ajaxComplete(function( event, xhr, settings ) {
+             $('#pcp_active').attr('disabled', true);
+           });
+        });"
+      );
+    }
   }
 }
 
