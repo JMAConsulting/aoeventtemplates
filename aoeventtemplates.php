@@ -1,6 +1,5 @@
 <?php
 define('TEMPLATE_ID', 327);
-define('WAIVER_5', 322);
 
 require_once 'aoeventtemplates.civix.php';
 
@@ -119,7 +118,7 @@ function aoeventtemplates_civicrm_buildAmount($pageType, &$form, &$amount) {
       $template = getEventTemplates($templateId);
       $zeroTemplates = [
         'Community Awareness',
- 	      'SLO Evidence Based Programs',
+ 	'SLO Evidence Based Programs',
         'SLO Health & Fitness',
         'SLO Recreation',
         'SLO Skill Building',
@@ -138,6 +137,41 @@ function aoeventtemplates_civicrm_buildAmount($pageType, &$form, &$amount) {
       }
     }
   } 
+}
+
+function aoeventtemplates_civicrm_pageRun(&$page) {
+  if (get_class($page) == 'CRM_Event_Page_EventInfo') {
+    $feeBlock = CRM_Core_Smarty::singleton()->get_template_vars('feeBlock');
+    $feeBlock['isDisplayAmount'][9] = $feeBlock['isDisplayAmount'][10] = $feeBlock['isDisplayAmount'][11] = 0;
+    CRM_Core_Smarty::singleton()->assign('feeBlock', $feeBlock);
+    
+    CRM_Core_Resources::singleton()->addScript(
+      "CRM.$(function($) {
+        $('table.fee_block-table tr:nth-child(2)').hide();
+        $('table.fee_block-table tr:nth-child(3)').hide();
+        $('table.fee_block-table tr:nth-child(4)').hide();
+        $('table.fee_block-table tr:nth-child(5)').hide();
+        $('table.fee_block-table tr:nth-child(7)').hide();
+        $('table.fee_block-table tr:nth-child(8)').hide();
+        $('#Event_Template__14').hide();
+        $('#Event_Template__25').hide();
+      });"
+    );
+  }
+  if (get_class($page) == 'CRM_Admin_Page_EventTemplate') {
+    $current_user = \Drupal::currentUser();
+    $roles = $current_user->getRoles();
+    if (array_search('staff', $roles) && !array_search('administrator', $roles)) {
+      CRM_Core_Error::fatal(ts('You do not have permission to access this page.'));
+    }
+  }
+  if (get_class($page) == "CRM_Contact_Page_View_Summary") {
+    CRM_Core_Resources::singleton()->addScript(
+      "CRM.$(function($) {
+        $('#tab_custom_22').hide();
+      });"
+    ); 
+  }
 }
 
 /**
@@ -159,8 +193,20 @@ function aoeventtemplates_civicrm_buildForm($formName, &$form) {
       ));
     }
   }
+  if ($formName == "CRM_Event_Form_ManageEvent_EventInfo") {
+    $defaults = [
+      'start_date' => date('m/d/Y'),
+    ];
+    $form->setDefaults($defaults);
+  }
+
+  $current_user = \Drupal::currentUser();
+  $roles = $current_user->getRoles();
+  if (array_search('administrator', $roles)) {
+    return;
+  }
   // Set frozen fields.
-  if ($formName == "CRM_Event_Form_ManageEvent_EventInfo" && !$form->getVar('is_template')) {
+  if ($formName == "CRM_Event_Form_ManageEvent_EventInfo" && !$form->getVar('_isTemplate')) {
     $freezeElements = [
       'event_type_id',
       'default_role_id',
@@ -181,11 +227,11 @@ function aoeventtemplates_civicrm_buildForm($formName, &$form) {
       });"
     );
   }
-  if ($formName == "CRM_Event_Form_ManageEvent_Location" && !$form->getVar('is_template')) {
+  if ($formName == "CRM_Event_Form_ManageEvent_Location" && !$form->getVar('_isTemplate')) {
     $form->addRule('email[1][email]', ts('Please enter an email.'), 'required');
     $form->addRule('phone[1][phone]', ts('Please enter phone number.'), 'required');
   }
-  if ($formName == "CRM_Event_Form_ManageEvent_Fee" && !$form->getVar('is_template')) {
+  if ($formName == "CRM_Event_Form_ManageEvent_Fee" && !$form->getVar('_isTemplate')) {
     $freezeElements = [
       'is_monetary',
       'financial_type_id',
@@ -196,15 +242,15 @@ function aoeventtemplates_civicrm_buildForm($formName, &$form) {
     ];
     $form->freeze($freezeElements);
   }
-  if ($formName == "CRM_Event_Form_ManageEvent_Registration" && !$form->getVar('is_template')) {
+  if ($formName == "CRM_Event_Form_ManageEvent_Registration" && !$form->getVar('_isTemplate')) {
     $freezeElements = [
-      'is_online_registration',
       'registration_link_text',
       'is_multiple_registrations',
       'allow_same_participant_emails',
       'dedupe_rule_group_id',
       'expiration_time',
       'selfcancelxfer_time',
+      'allow_selfcancelxfer',
       'confirm_title',
       'confirm_text',
       'confirm_footer_text',
@@ -219,10 +265,11 @@ function aoeventtemplates_civicrm_buildForm($formName, &$form) {
     CRM_Core_Resources::singleton()->addScript(
       "CRM.$(function($) {
         $('#registration_screen').find('table').next().hide();
+        $('#is_online_registration').attr('disabled', true);
       });"
     );
   }
-  if ($formName == "CRM_Event_Form_ManageEvent_ScheduleReminders" && !$form->getVar('is_template')) {
+  if ($formName == "CRM_Event_Form_ManageEvent_ScheduleReminders" && !$form->getVar('_isTemplate')) {
     CRM_Core_Resources::singleton()->addScript(
       "CRM.$(function($) {
         $('.action-link').hide();
@@ -230,7 +277,7 @@ function aoeventtemplates_civicrm_buildForm($formName, &$form) {
       });"
     );
   }
-  if ($formName == "CRM_Friend_Form_Event" && !$form->getVar('is_template')) {
+  if ($formName == "CRM_Friend_Form_Event" && !$form->getVar('_isTemplate')) {
     $freezeElements = [
       'tf_is_active',
       'tf_title',
@@ -242,7 +289,7 @@ function aoeventtemplates_civicrm_buildForm($formName, &$form) {
     ];
     $form->freeze($freezeElements);
   }
-  if ($formName == "CRM_PCP_Form_Event" && !$form->getVar('is_template')) {
+  if ($formName == "CRM_PCP_Form_Event" && !$form->getVar('_isTemplate')) {
     CRM_Core_Resources::singleton()->addScript(
       "CRM.$(function($) {
         $( document ).ajaxComplete(function( event, xhr, settings ) {

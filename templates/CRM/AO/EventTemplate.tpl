@@ -8,8 +8,9 @@ CRM.$(function($) {
 
   $('fieldset.crm-profile-name-Waivers_35 div.label').hide();
   if (zeroprice) {
-    $('._siblings-content span.price-field-amount').html('$ 0.00');
-    $('._of_professionals-content span.price-field-amount').html('$ 0.00');
+    $('._siblings-content span.price-field-amount').html('');
+    $('._of_professionals-content span.price-field-amount').html('');
+    $('._of_volunteers-content span.price-field-amount').html('');
   }
   switch (currentTemplate) {
     case 'SLO Evidence Based Programs':
@@ -20,12 +21,14 @@ CRM.$(function($) {
     case 'SLO Skill Building':
       $('._of_professionals-section').hide();
       $('#editrow-'+waiver).hide();
+      $('#helprow-'+waiver).hide();
       break;
     case 'Workshop Behaviour':
     case 'Workshop Communication':
     case 'Workshop - Other':
     case 'Workshop - Social':
       $('#editrow-'+waiver).hide();
+      $('#helprow-'+waiver).hide();
       break;
     default:
       break;
