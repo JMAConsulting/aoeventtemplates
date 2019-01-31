@@ -8,9 +8,11 @@ CRM.$(function($) {
 
   $('fieldset.crm-profile-name-Waivers_35 div.label').hide();
   if (zeroprice) {
-    $('._siblings-content span.price-field-amount').html('');
-    $('._of_professionals-content span.price-field-amount').html('');
-    $('._of_volunteers-content span.price-field-amount').html('');
+    $('._of_children_with_asd_attending-content').append('$ 0.00');
+    $('._of_parents_guardians_caregivers-content').append('$ 0.00');
+    $('._siblings-content span.price-field-amount').html('$ 0.00');
+    $('._of_professionals-content span.price-field-amount').html('$ 0.00');
+    $('._of_volunteers-content span.price-field-amount').html('$ 0.00');
   }
   switch (currentTemplate) {
     case 'SLO Evidence Based Programs':

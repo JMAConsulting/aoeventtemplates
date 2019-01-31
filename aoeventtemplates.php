@@ -216,12 +216,12 @@ function aoeventtemplates_civicrm_buildForm($formName, &$form) {
     }
     $form->addRule('start_date', ts('Please enter the event start date.'), 'required');
     $form->addRule('end_date', ts('Please enter the event end date'), 'required');
-    $form->addRule('start_date_time', ts('Please enter the event start time.'), 'required');
-    $form->addRule('end_date_time', ts('Please enter the event end time.'), 'required');
+    //$form->addRule('start_date_time', ts('Please enter the event start time.'), 'required');
+    //$form->addRule('end_date_time', ts('Please enter the event end time.'), 'required');
     CRM_Core_Resources::singleton()->addScript(
       "CRM.$(function($) {
         $( document ).ajaxComplete(function( event, xhr, settings ) {
-          $('.custom-group-Event_Template').hide();
+          $('.custom_327_25-row').hide();
         });
       });"
     );
