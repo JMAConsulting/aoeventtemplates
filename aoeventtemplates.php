@@ -193,7 +193,7 @@ function aoeventtemplates_civicrm_buildForm($formName, &$form) {
       ));
     }
   }
-  if ($formName == "CRM_Event_Form_ManageEvent_EventInfo") {
+  if ($formName == "CRM_Event_Form_ManageEvent_EventInfo" && ($form->_action & CRM_Core_Action::ADD)) {
     $defaults = [
       'start_date' => date('m/d/Y'),
     ];
@@ -244,6 +244,15 @@ function aoeventtemplates_civicrm_buildForm($formName, &$form) {
     }
   }
   if ($formName == "CRM_Event_Form_ManageEvent_Registration" && !$form->getVar('_isTemplate')) {
+    if ($form->_action & CRM_Core_Action::ADD) {
+      $cid = CRM_Core_Session::singleton()->get('userID');
+      if ($cid) {
+        $details = CRM_Core_DAO::executeQuery("SELECT display_name, email FROM civicrm_contact c INNER JOIN civicrm_email e ON e.contact_id = c.id WHERE c.id = {$cid} AND e.is_primary = 1")->fetchAll()[0];
+        if (!empty($details)) {
+          $form->setDefaults(['confirm_from_name' => $details['display_name'], 'confirm_from_email' => $details['email']]);
+        }
+      }
+    }
     if (!array_search('administrator', $roles)) {
       $freezeElements = [
         'registration_link_text',
@@ -260,8 +269,8 @@ function aoeventtemplates_civicrm_buildForm($formName, &$form) {
         'thankyou_text',
         'thankyou_footer_text',
         'confirm_email_text',
-        'confirm_from_name',
-        'confirm_from_email',
+        //'confirm_from_name',
+        //'confirm_from_email',
       ];
       $form->freeze($freezeElements);
       CRM_Core_Resources::singleton()->addScript(
