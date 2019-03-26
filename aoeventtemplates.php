@@ -339,6 +339,11 @@ function aoeventtemplates_civicrm_buildForm($formName, &$form) {
       );
     }
   }
+  if ($formName == "CRM_Event_Form_Participant") {
+    CRM_Core_Region::instance('page-body')->add(array(
+      'template' => 'CRM/AO/Price.tpl',
+    ));
+  }
 }
 
 function getEventTemplates($id) {
