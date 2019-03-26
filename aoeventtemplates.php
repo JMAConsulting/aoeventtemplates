@@ -118,7 +118,7 @@ function aoeventtemplates_civicrm_buildAmount($pageType, &$form, &$amount) {
       $template = getEventTemplates($templateId);
       $zeroTemplates = [
         'Community Awareness',
- 	'SLO Evidence Based Programs',
+ 	    'SLO Evidence Based Programs',
         'SLO Health & Fitness',
         'SLO Recreation',
         'SLO Skill Building',
@@ -204,7 +204,7 @@ function aoeventtemplates_civicrm_buildForm($formName, &$form) {
   $roles = $current_user->getRoles();
   // Set frozen fields.
   if ($formName == "CRM_Event_Form_ManageEvent_EventInfo" && !$form->getVar('_isTemplate')) {
-    if (!array_search('administrator', $roles)) {
+    if (!array_search('administrator', $roles) && !array_search('senior_staff', $roles)) {
       $freezeElements = [
         'event_type_id',
         'default_role_id',
@@ -231,7 +231,7 @@ function aoeventtemplates_civicrm_buildForm($formName, &$form) {
     $form->addRule('phone[1][phone]', ts('Please enter phone number.'), 'required');
   }
   if ($formName == "CRM_Event_Form_ManageEvent_Fee" && !$form->getVar('_isTemplate')) {
-    if (!array_search('administrator', $roles)) {
+    if (!array_search('administrator', $roles) && !array_search('senior_staff', $roles)) {
       $freezeElements = [
         'is_monetary',
         'financial_type_id',
@@ -253,7 +253,7 @@ function aoeventtemplates_civicrm_buildForm($formName, &$form) {
         }
       }
     }
-    if (!array_search('administrator', $roles)) {
+    if (!array_search('administrator', $roles) && !array_search('senior_staff', $roles)) {
       $freezeElements = [
         'registration_link_text',
         'is_multiple_registrations',
@@ -276,13 +276,13 @@ function aoeventtemplates_civicrm_buildForm($formName, &$form) {
       CRM_Core_Resources::singleton()->addScript(
         "CRM.$(function($) {
            $('#registration_screen').find('table').next().hide();
-           $('#is_online_registration').attr('disabled', true);
+           $('#is_online_registration').hide();
         });"
       );
     }
   }
   if ($formName == "CRM_Event_Form_ManageEvent_ScheduleReminders" && !$form->getVar('_isTemplate')) {
-    if (!array_search('administrator', $roles)) {
+    if (!array_search('administrator', $roles) && !array_search('senior_staff', $roles)) {
       CRM_Core_Resources::singleton()->addScript(
         "CRM.$(function($) {
            $('.action-link').hide();
@@ -292,7 +292,7 @@ function aoeventtemplates_civicrm_buildForm($formName, &$form) {
     }
   }
   if ($formName == "CRM_Friend_Form_Event" && !$form->getVar('_isTemplate')) {
-    if (!array_search('administrator', $roles)) {
+    if (!array_search('administrator', $roles) && !array_search('senior_staff', $roles)) {
       $freezeElements = [
         'tf_is_active',
         'tf_title',
@@ -306,7 +306,7 @@ function aoeventtemplates_civicrm_buildForm($formName, &$form) {
     }
   }
   if ($formName == "CRM_PCP_Form_Event" && !$form->getVar('_isTemplate')) {
-    if (!array_search('administrator', $roles)) {
+    if (!array_search('administrator', $roles) && !array_search('senior_staff', $roles)) {
       CRM_Core_Resources::singleton()->addScript(
         "CRM.$(function($) {
            $( document ).ajaxComplete(function( event, xhr, settings ) {
