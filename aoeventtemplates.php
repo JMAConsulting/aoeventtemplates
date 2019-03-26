@@ -109,6 +109,16 @@ function aoeventtemplates_civicrm_alterSettingsFolders(&$metaDataFolders = NULL)
 }
 
 function aoeventtemplates_civicrm_buildAmount($pageType, &$form, &$amount) {
+  $zeroTemplates = [
+    'Community Awareness',
+    'SLO Evidence Based Programs',
+    'SLO Health & Fitness',
+    'SLO Recreation',
+    'SLO Skill Building',
+    'SLO Support Groups - Facilitated',
+    'SLO Support Groups - Meetup',
+    'Workshop Community Training',
+  ];
   if (get_class($form) == "CRM_Event_Form_Registration_Register") {
     $templateId = civicrm_api3('Event', 'get', [
       'id' => $form->_eventId,
@@ -116,16 +126,6 @@ function aoeventtemplates_civicrm_buildAmount($pageType, &$form, &$amount) {
     ])['values'][$form->_eventId]['custom_' . TEMPLATE_ID];
     if ($templateId) {
       $template = getEventTemplates($templateId);
-      $zeroTemplates = [
-        'Community Awareness',
- 	    'SLO Evidence Based Programs',
-        'SLO Health & Fitness',
-        'SLO Recreation',
-        'SLO Skill Building',
-        'SLO Support Groups - Facilitated',
-        'SLO Support Groups - Meetup',
-        'Workshop Community Training',
-      ];
       if (in_array($template, $zeroTemplates)) {
         $form->assign('zeroPrice', TRUE);
         foreach ($amount as $key => &$val) {
@@ -136,7 +136,30 @@ function aoeventtemplates_civicrm_buildAmount($pageType, &$form, &$amount) {
         }
       }
     }
-  } 
+  }
+  if (get_class($form) == "CRM_Event_Form_Participant" && $pageType == 'event') {
+    $eventTypes = CRM_Core_OptionGroup::values('event_type');
+    $eventType = CRM_Core_DAO::singleValueQuery("SELECT event_type_id FROM civicrm_event WHERE id = {$form->_eventId}");
+    if (array_search($eventTypes[$eventType], $zeroTemplates) && !empty($amount)) {
+      $form->assign('zeroPrice', TRUE);
+      foreach ($amount as $key => &$val) {
+        $val['is_display_amounts'] = 0;
+        foreach ($val['options'] as $pid => &$pf) {
+          $pf['amount'] = 0.00;
+        }
+      }
+    }
+  }
+}
+
+function aoeventtemplates_civicrm_links($op, $objectName, $objectId, &$links, &$mask, &$values) {
+  if ($op == "event.manage.list") {
+    $current_user = \Drupal::currentUser();
+    $roles = $current_user->getRoles();
+    if (!array_search('senior_staff', $roles) && !array_search('administrator', $roles)) {
+      unset($links[3]);
+    }
+  }
 }
 
 function aoeventtemplates_civicrm_pageRun(&$page) {
@@ -161,7 +184,7 @@ function aoeventtemplates_civicrm_pageRun(&$page) {
   if (get_class($page) == 'CRM_Admin_Page_EventTemplate') {
     $current_user = \Drupal::currentUser();
     $roles = $current_user->getRoles();
-    if (array_search('staff', $roles) && !array_search('administrator', $roles)) {
+    if (!array_search('senior_staff', $roles) && !array_search('administrator', $roles)) {
       CRM_Core_Error::fatal(ts('You do not have permission to access this page.'));
     }
   }
