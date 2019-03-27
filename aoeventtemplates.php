@@ -178,6 +178,7 @@ function aoeventtemplates_civicrm_pageRun(&$page) {
         $('table.fee_block-table tr:nth-child(8)').hide();
         $('#Event_Template__14').hide();
         $('#Event_Template__25').hide();
+        $('#Event_Template__331 > div.crm-accordion-wrapper > div.crm-accordion-body > table:nth-child(1)').hide();
       });"
     );
   }
