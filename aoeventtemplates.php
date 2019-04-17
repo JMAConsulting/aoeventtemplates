@@ -347,6 +347,34 @@ function aoeventtemplates_civicrm_buildForm($formName, &$form) {
   }
 }
 
+function aoeventtemplates_civicrm_validateForm($formName, &$fields, &$files, &$form, &$errors) {
+  if ($formName == "CRM_Event_Form_Registration_Register") {
+    $templateId = civicrm_api3('Event', 'get', [
+      'id' => $form->_eventId,
+      'return.custom_' . TEMPLATE_ID => 1,
+    ])['values'][$form->_eventId]['custom_' . TEMPLATE_ID];
+    if (!empty($templateId)) {
+      $flag = TRUE;
+      $priceFields = [
+        'price_24',
+        'price_36',
+        'price_37',
+        'price_38',
+        'price_39',
+      ];
+      foreach ($priceFields as $price) {
+        if (!empty($fields[$price])) {
+          $flag = FALSE;
+          break;
+        }
+      }
+      if ($flag) {
+        $errors['_qf_default'] = ts("Please select atleat atleast one of the ticket options.");
+      }
+    }
+  }
+}
+
 function getEventTemplates($id) {
   $template = CRM_Core_DAO::singleValueQuery("SELECT template_title FROM civicrm_event WHERE is_template = 1 AND id = %1", ['1' => [$id, 'Integer']]);
   return $template;
