@@ -137,7 +137,7 @@ function aoeventtemplates_civicrm_buildAmount($pageType, &$form, &$amount) {
       }
     }
   }
-  if (get_class($form) == "CRM_Event_Form_Participant" && $pageType == 'event') {
+  if (in_array(get_class($form), ["CRM_Event_Form_Participant", "CRM_Event_Form_ParticipantFeeSelection"]) && $pageType == 'event') {
     $eventTypes = CRM_Core_OptionGroup::values('event_type');
     $eventType = CRM_Core_DAO::singleValueQuery("SELECT event_type_id FROM civicrm_event WHERE id = {$form->_eventId}");
     if (array_search($eventTypes[$eventType], $zeroTemplates) && !empty($amount)) {
@@ -204,7 +204,7 @@ function aoeventtemplates_civicrm_pageRun(&$page) {
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_buildForm
  */
 function aoeventtemplates_civicrm_buildForm($formName, &$form) {
-  if ($formName == "CRM_Event_Form_Registration_Register") {
+  if (in_array($formName, ["CRM_Event_Form_Registration_Register", "CRM_Event_Form_ParticipantFeeSelection"])) {
     $templateId = civicrm_api3('Event', 'get', [
       'id' => $form->_eventId,
       'return.custom_' . TEMPLATE_ID => 1,
