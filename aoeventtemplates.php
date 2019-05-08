@@ -349,6 +349,9 @@ function aoeventtemplates_civicrm_buildForm($formName, &$form) {
 
 function aoeventtemplates_civicrm_validateForm($formName, &$fields, &$files, &$form, &$errors) {
   if ($formName == "CRM_Event_Form_Registration_Register") {
+    if (!empty($form->_noFees)) {
+      return TRUE;
+    }
     $templateId = civicrm_api3('Event', 'get', [
       'id' => $form->_eventId,
       'return.custom_' . TEMPLATE_ID => 1,
