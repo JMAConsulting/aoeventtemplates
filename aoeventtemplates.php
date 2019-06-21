@@ -374,7 +374,7 @@ function aoeventtemplates_civicrm_validateForm($formName, &$fields, &$files, &$f
     if (!empty($templateId)) {
       $totalNumber = 0;
       $flag = TRUE;
-      if ($templateId == SLOZOOEVENT) {
+      if ($templateId != SLOZOOEVENT) {
         $priceFields = [
           'price_24',
           'price_36',
@@ -384,10 +384,11 @@ function aoeventtemplates_civicrm_validateForm($formName, &$fields, &$files, &$f
         ];
       }
       else {
+        $flag = TRUE;
         $priceFields = [
-          'price_64',
-          'price_65',
-          'price_66',
+          'price_179',
+          'price_180',
+          'price_181',
         ];
       }
       foreach ($priceFields as $price) {
@@ -401,6 +402,9 @@ function aoeventtemplates_civicrm_validateForm($formName, &$fields, &$files, &$f
       }
       if ($totalNumber > 4) {
         $errors['_qf_default'] = ts("Please select only upto 4 children with ASD.");
+      }
+      if ($fields['price_186'] > $totalNumber) {
+        $errors['_qf_default'] = ts("Free Caregivers must be equal to or less than # or tickets for children with ASD.");
       }
       if ($flag) {
         $errors['_qf_default'] = ts("Please select atleast one of the ticket options.");
