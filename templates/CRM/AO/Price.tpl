@@ -2,18 +2,33 @@
 <script type="text/javascript">
 CRM.$( function($) {
   var eventType = '{/literal}{$eventTypeID}{literal}';
-  if (eventType) {
-    hidePriceSet(eventType);
+  var eventId = '{/literal}{$eventID}{literal}';
+  if (eventId) {
+    CRM.api3('Event', 'get', {
+      "id": eventId,
+      "return.custom_327": 1,
+    }).done(function(result) {
+      if (result.values[eventId]['custom_327'] != 1462) {
+        hidePriceSet(eventType);
+      }
+    });
   }
    
   $('#event_id').change(function() {
     var eventid = $(this).val();
     if (eventid) {
-      CRM.api3('Event', 'getvalue', {
-        "return": "event_type_id",
-        "id": eventid
-      }).done(function(result) {
-        hidePriceSet(result.result);
+      CRM.api3('Event', 'get', {
+        "id": eventid,
+        "return.custom_327": 1,
+      }).then(function(result) {
+        if (result.values[eventid]['custom_327'] != 1462) {
+          CRM.api3('Event', 'getvalue', {
+            "return": "event_type_id",
+            "id": eventid
+          }).done(function(result) {
+            hidePriceSet(result.result);
+          });
+        }
       });
     }
   });

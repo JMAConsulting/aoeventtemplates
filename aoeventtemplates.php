@@ -169,6 +169,14 @@ function aoeventtemplates_civicrm_links($op, $objectName, $objectId, &$links, &$
 
 function aoeventtemplates_civicrm_pageRun(&$page) {
   if (get_class($page) == 'CRM_Event_Page_EventInfo') {
+    $eventId = CRM_Core_Smarty::singleton()->get_template_vars('event')['id'];
+    $templateId = civicrm_api3('Event', 'get', [
+      'id' => $eventId,
+      'return.custom_' . TEMPLATE_ID => 1,
+    ])['values'][$eventId]['custom_' . TEMPLATE_ID];
+    if ($templateId == SLOZOOEVENT) {
+      return;
+    }
     $feeBlock = CRM_Core_Smarty::singleton()->get_template_vars('feeBlock');
     $feeBlock['isDisplayAmount'][9] = $feeBlock['isDisplayAmount'][10] = $feeBlock['isDisplayAmount'][11] = 0;
     CRM_Core_Smarty::singleton()->assign('feeBlock', $feeBlock);
