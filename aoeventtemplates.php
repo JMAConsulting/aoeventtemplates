@@ -141,7 +141,11 @@ function aoeventtemplates_civicrm_buildAmount($pageType, &$form, &$amount) {
   if (in_array(get_class($form), ["CRM_Event_Form_Participant", "CRM_Event_Form_ParticipantFeeSelection"]) && $pageType == 'event') {
     $eventTypes = CRM_Core_OptionGroup::values('event_type');
     $eventType = CRM_Core_DAO::singleValueQuery("SELECT event_type_id FROM civicrm_event WHERE id = {$form->_eventId}");
-    if (array_search($eventTypes[$eventType], $zeroTemplates) && !empty($amount)) {
+    $templateId = civicrm_api3('Event', 'get', [
+      'id' => $form->_eventId,
+      'return.custom_' . TEMPLATE_ID => 1,
+    ])['values'][$form->_eventId]['custom_' . TEMPLATE_ID];
+    if ($templateId != SLOZOOEVENT && array_search($eventTypes[$eventType], $zeroTemplates) && !empty($amount)) {
       $form->assign('zeroPrice', TRUE);
       foreach ($amount as $key => &$val) {
         $val['is_display_amounts'] = 0;
