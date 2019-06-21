@@ -1,5 +1,6 @@
 <?php
 define('TEMPLATE_ID', 327);
+define('SLOZOOEVENT', 1462);
 
 require_once 'aoeventtemplates.civix.php';
 
@@ -224,10 +225,10 @@ function aoeventtemplates_civicrm_buildForm($formName, &$form) {
     $form->setDefaults($defaults);
   }
 
-  $current_user = \Drupal::currentUser();
-  $roles = $current_user->getRoles();
   // Set frozen fields.
   if ($formName == "CRM_Event_Form_ManageEvent_EventInfo" && !$form->getVar('_isTemplate')) {
+    $current_user = \Drupal::currentUser();
+    $roles = $current_user->getRoles();
     if (!array_search('administrator', $roles) && !array_search('senior_staff', $roles)) {
       $freezeElements = [
         'event_type_id',
@@ -255,6 +256,8 @@ function aoeventtemplates_civicrm_buildForm($formName, &$form) {
     $form->addRule('phone[1][phone]', ts('Please enter phone number.'), 'required');
   }
   if ($formName == "CRM_Event_Form_ManageEvent_Fee" && !$form->getVar('_isTemplate')) {
+    $current_user = \Drupal::currentUser();
+    $roles = $current_user->getRoles();
     if (!array_search('administrator', $roles) && !array_search('senior_staff', $roles)) {
       $freezeElements = [
         'is_monetary',
@@ -268,6 +271,8 @@ function aoeventtemplates_civicrm_buildForm($formName, &$form) {
     }
   }
   if ($formName == "CRM_Event_Form_ManageEvent_Registration" && !$form->getVar('_isTemplate')) {
+    $current_user = \Drupal::currentUser();
+    $roles = $current_user->getRoles();
     if ($form->_action & CRM_Core_Action::ADD) {
       $cid = CRM_Core_Session::singleton()->get('userID');
       if ($cid) {
@@ -306,6 +311,8 @@ function aoeventtemplates_civicrm_buildForm($formName, &$form) {
     }
   }
   if ($formName == "CRM_Event_Form_ManageEvent_ScheduleReminders" && !$form->getVar('_isTemplate')) {
+    $current_user = \Drupal::currentUser();
+    $roles = $current_user->getRoles();
     if (!array_search('administrator', $roles) && !array_search('senior_staff', $roles)) {
       CRM_Core_Resources::singleton()->addScript(
         "CRM.$(function($) {
@@ -316,6 +323,8 @@ function aoeventtemplates_civicrm_buildForm($formName, &$form) {
     }
   }
   if ($formName == "CRM_Friend_Form_Event" && !$form->getVar('_isTemplate')) {
+    $current_user = \Drupal::currentUser();
+    $roles = $current_user->getRoles();
     if (!array_search('administrator', $roles) && !array_search('senior_staff', $roles)) {
       $freezeElements = [
         'tf_is_active',
@@ -330,6 +339,8 @@ function aoeventtemplates_civicrm_buildForm($formName, &$form) {
     }
   }
   if ($formName == "CRM_PCP_Form_Event" && !$form->getVar('_isTemplate')) {
+    $current_user = \Drupal::currentUser();
+    $roles = $current_user->getRoles();
     if (!array_search('administrator', $roles) && !array_search('senior_staff', $roles)) {
       CRM_Core_Resources::singleton()->addScript(
         "CRM.$(function($) {
@@ -357,22 +368,38 @@ function aoeventtemplates_civicrm_validateForm($formName, &$fields, &$files, &$f
       'return.custom_' . TEMPLATE_ID => 1,
     ])['values'][$form->_eventId]['custom_' . TEMPLATE_ID];
     if (!empty($templateId)) {
+      $totalNumber = 0;
       $flag = TRUE;
-      $priceFields = [
-        'price_24',
-        'price_36',
-        'price_37',
-        'price_38',
-        'price_39',
-      ];
+      if ($templateId == SLOZOOEVENT) {
+        $priceFields = [
+          'price_24',
+          'price_36',
+          'price_37',
+          'price_38',
+          'price_39',
+        ];
+      }
+      else {
+        $priceFields = [
+          'price_64',
+          'price_65',
+          'price_66',
+        ];
+      }
       foreach ($priceFields as $price) {
         if (!empty($fields[$price])) {
+          if ($templateId == SLOZOOEVENT) {
+            // Check total number.
+            $totalNumber += $fields[$price];
+          }
           $flag = FALSE;
-          break;
         }
       }
+      if ($totalNumber > 4) {
+        $errors['_qf_default'] = ts("Please select only upto 4 children with ASD.");
+      }
       if ($flag) {
-        $errors['_qf_default'] = ts("Please select atleat atleast one of the ticket options.");
+        $errors['_qf_default'] = ts("Please select atleast one of the ticket options.");
       }
     }
   }
