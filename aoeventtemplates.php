@@ -1,6 +1,7 @@
 <?php
 define('TEMPLATE_ID', 327);
 define('SLOZOOEVENT', 1462);
+define('SLOVAR', 1464);
 
 require_once 'aoeventtemplates.civix.php';
 
