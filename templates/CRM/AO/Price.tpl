@@ -8,7 +8,7 @@ CRM.$( function($) {
       "id": eventId,
       "return.custom_327": 1,
     }).done(function(result) {
-      if (result.values[eventId]['custom_327'] != 1462) {
+      if (result.values[eventId]['custom_327'] != 1509) {
         hidePriceSet(eventType);
       }
     });
@@ -21,7 +21,7 @@ CRM.$( function($) {
         "id": eventid,
         "return.custom_327": 1,
       }).then(function(result) {
-        if (result.values[eventid]['custom_327'] != 1462) {
+        if (result.values[eventid]['custom_327'] != 1509) {
           CRM.api3('Event', 'getvalue', {
             "return": "event_type_id",
             "id": eventid

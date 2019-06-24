@@ -1,7 +1,7 @@
 <?php
 define('TEMPLATE_ID', 327);
-define('SLOZOOEVENT', 1462);
-define('SLOVAR', 1464);
+define('SLOZOOEVENT', 1509);
+define('SLOVAR', 1510);
 
 require_once 'aoeventtemplates.civix.php';
 
@@ -395,9 +395,9 @@ function aoeventtemplates_civicrm_validateForm($formName, &$fields, &$files, &$f
       else {
         $flag = TRUE;
         $priceFields = [
-          'price_179',
-          'price_180',
-          'price_181',
+          'price_192',
+          'price_193',
+          'price_194',
         ];
       }
       foreach ($priceFields as $price) {
@@ -412,7 +412,7 @@ function aoeventtemplates_civicrm_validateForm($formName, &$fields, &$files, &$f
       if ($totalNumber > 4) {
         $errors['_qf_default'] = ts("Please select only upto 4 children with ASD.");
       }
-      if ($fields['price_186'] > $totalNumber) {
+      if ($fields['price_192'] > $totalNumber) {
         $errors['_qf_default'] = ts("Free Caregivers must be equal to or less than # or tickets for children with ASD.");
       }
       if ($flag) {
