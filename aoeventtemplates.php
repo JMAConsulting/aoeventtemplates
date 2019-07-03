@@ -146,7 +146,7 @@ function aoeventtemplates_civicrm_buildAmount($pageType, &$form, &$amount) {
       'id' => $form->_eventId,
       'return.custom_' . TEMPLATE_ID => 1,
     ])['values'][$form->_eventId]['custom_' . TEMPLATE_ID];
-    if ($templateId != SLOZOOEVENT && array_search($eventTypes[$eventType], $zeroTemplates) && !empty($amount)) {
+    if (!in_array($templateId, [SLOZOOEVENT, SLOVAREVENT]) && array_search($eventTypes[$eventType], $zeroTemplates) && !empty($amount)) {
       $form->assign('zeroPrice', TRUE);
       foreach ($amount as $key => &$val) {
         $val['is_display_amounts'] = 0;
@@ -175,7 +175,7 @@ function aoeventtemplates_civicrm_pageRun(&$page) {
       'id' => $eventId,
       'return.custom_' . TEMPLATE_ID => 1,
     ])['values'][$eventId]['custom_' . TEMPLATE_ID];
-    if ($templateId == SLOZOOEVENT) {
+    if ($templateId == SLOZOOEVENT || $templateId == SLOVAREVENT) {
       return;
     }
     $feeBlock = CRM_Core_Smarty::singleton()->get_template_vars('feeBlock');
@@ -383,21 +383,27 @@ function aoeventtemplates_civicrm_validateForm($formName, &$fields, &$files, &$f
     if (!empty($templateId)) {
       $totalNumber = 0;
       $flag = TRUE;
-      if ($templateId != SLOZOOEVENT) {
+      if ($templateId == SLOZOOEVENT) {
+        $priceFields = [
+          'price_192',
+          'price_193',
+          'price_194',
+        ];
+      }
+      elseif ($templateId == SLOVAREVENT) {
+        $priceSetId = CRM_Price_BAO_PriceSet::getFor('civicrm_event', $form->_eventId);
+        $priceFieldIds = CRM_Core_DAO::executeQuery("SELECT id FROM civicrm_price_field WHERE price_set_id = %1", [1 => [$priceSetId, "Integer"]])->fetchAll();
+        foreach ($priceFieldIds as $priceFids) {
+          $priceFields[] = 'price_' . $priceFids['id']; 
+        }
+      }
+      else {
         $priceFields = [
           'price_24',
           'price_36',
           'price_37',
           'price_38',
           'price_39',
-        ];
-      }
-      else {
-        $flag = TRUE;
-        $priceFields = [
-          'price_192',
-          'price_193',
-          'price_194',
         ];
       }
       foreach ($priceFields as $price) {
@@ -439,6 +445,27 @@ function aoeventtemplates_civicrm_postProcess($formName, &$form) {
       'entity_id' => $eventId,
       'custom_' . TEMPLATE_ID => $form->getVar('_templateId'),
     ]);
+    if ($form->getVar('_templateId') == SLOVAREVENT) {
+      $dao = new CRM_Event_DAO_Event();
+      $dao->event_type_id = $form->_submitValues['event_type_id'];
+      $dao->title = $form->_submitValues['title'];
+      $dao->orderBy('id DESC');
+      $dao->find(TRUE);
+      _aoeventtemplates_copyprice('Event', $dao);
+    }
+  }
+}
+
+function _aoeventtemplates_copyprice($objectName, &$object) {
+  if ($objectName == 'Event') {
+    $priceSetId = CRM_Price_BAO_PriceSet::getFor('civicrm_event', $object->id);
+    if ($priceSetId) {
+      $isQuickConfig = CRM_Core_DAO::getFieldValue('CRM_Price_DAO_PriceSet', $priceSetId, 'is_quick_config');
+      if(!$isQuickConfig) {
+        $copyPriceSet = CRM_Price_BAO_PriceSet::copy($priceSetId);
+        CRM_Price_BAO_PriceSet::addTo('civicrm_event', $object->id, $copyPriceSet->id);
+      }
+    }
   }
 }
 
