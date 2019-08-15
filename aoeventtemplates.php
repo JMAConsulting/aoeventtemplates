@@ -1,7 +1,7 @@
 <?php
 define('TEMPLATE_ID', 327);
 define('SLOZOOEVENT', 1509);
-define('SLOVAR', 1510);
+define('SLOVAREVENT', 1510);
 
 require_once 'aoeventtemplates.civix.php';
 
@@ -146,7 +146,7 @@ function aoeventtemplates_civicrm_buildAmount($pageType, &$form, &$amount) {
       'id' => $form->_eventId,
       'return.custom_' . TEMPLATE_ID => 1,
     ])['values'][$form->_eventId]['custom_' . TEMPLATE_ID];
-    if (!in_array($templateId, [SLOZOOEVENT, SLOVAREVENT]) && array_search($eventTypes[$eventType], $zeroTemplates) && !empty($amount)) {
+    if (!in_array($templateId, [SLOZOOEVENT, SLOVAREVENT]) && in_array($eventTypes[$eventType], $zeroTemplates) && !empty($amount)) {
       $form->assign('zeroPrice', TRUE);
       foreach ($amount as $key => &$val) {
         $val['is_display_amounts'] = 0;
@@ -154,6 +154,7 @@ function aoeventtemplates_civicrm_buildAmount($pageType, &$form, &$amount) {
           $pf['amount'] = 0.00;
         }
       }
+
     }
   }
 }
@@ -418,7 +419,7 @@ function aoeventtemplates_civicrm_validateForm($formName, &$fields, &$files, &$f
       if ($totalNumber > 4) {
         $errors['_qf_default'] = ts("Please select only upto 4 children with ASD.");
       }
-      if ($fields['price_192'] > $totalNumber) {
+      if (array_key_exists('price_192', $fields) && ($fields['price_192'] > $totalNumber)) {
         $errors['_qf_default'] = ts("Free Caregivers must be equal to or less than # or tickets for children with ASD.");
       }
       if ($flag) {
@@ -464,6 +465,7 @@ function _aoeventtemplates_copyprice($objectName, &$object) {
       if(!$isQuickConfig) {
         $copyPriceSet = CRM_Price_BAO_PriceSet::copy($priceSetId);
         CRM_Price_BAO_PriceSet::addTo('civicrm_event', $object->id, $copyPriceSet->id);
+        CRM_Core_DAO::singleValueQuery("UPDATE civicrm_price_set SET is_reserved = 0 WHERE id = %1", [1 => [$copyPriceSet->id, "Integer"]]);
       }
     }
   }
