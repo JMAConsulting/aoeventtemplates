@@ -276,11 +276,21 @@ function aoeventtemplates_civicrm_buildForm($formName, &$form) {
       $freezeElements = [
         'is_monetary',
         'financial_type_id',
-        'price_set_id',
         'is_pay_later',
         'payment_processor',
         'fee_label',
       ];
+      // Conditional price set freeze.
+      $templateId = civicrm_api3('Event', 'get', [
+        'id' => $form->_eventId,
+        'return.custom_' . TEMPLATE_ID => 1,
+      ])['values'][$form->_eventId]['custom_' . TEMPLATE_ID];
+      if ($templateId) {
+        $templateTitle = getEventTemplates($templateId);
+        if ($templateTitle != "SLO Variable Pricing") {
+          $freezeElements[] = 'price_set_id';
+        }
+      }
       $form->freeze($freezeElements);
     }
   }
