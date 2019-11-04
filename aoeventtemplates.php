@@ -484,5 +484,14 @@ function _aoeventtemplates_copyprice($objectName, &$object) {
 function aoeventtemplates_civicrm_post($op, $objectName, $objectId, &$objectRef) {
   if ($op == 'create' && $objectName == 'Event') {
     CRM_Core_Session::singleton()->set('eventId', $objectId);    
+    // We also set the template ID here, some intermittent error causes session not to transmit event sometimes.
+    if (!empty($objectRef->template_title)) {
+      $templateID = CRM_Core_DAO::singleValueQuery("SELECT e.id FROM civicrm_event e INNER JOIN civicrm_option_value v ON v.value = e.event_type_id WHERE v.name = %1 AND v.option_group_id = 15", [1 => [$objectRef->template_title, 'String']]);
+      civicrm_api3('CustomValue', 'create', [
+        'entity_id' => $objectId,
+        'custom_' . TEMPLATE_ID => $templateID,
+      ]);
+    }
+    
   }
 }
