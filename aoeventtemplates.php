@@ -160,6 +160,9 @@ function aoeventtemplates_civicrm_buildAmount($pageType, &$form, &$amount) {
 }
 
 function aoeventtemplates_civicrm_links($op, $objectName, $objectId, &$links, &$mask, &$values) {
+  if (CRM_Core_Config::singleton()->userSystem->is_wordpress) {
+    return;
+  }
   if ($op == "event.manage.list") {
     $current_user = \Drupal::currentUser();
     $roles = $current_user->getRoles();
@@ -170,6 +173,9 @@ function aoeventtemplates_civicrm_links($op, $objectName, $objectId, &$links, &$
 }
 
 function aoeventtemplates_civicrm_pageRun(&$page) {
+  if (CRM_Core_Config::singleton()->userSystem->is_wordpress) {
+    return;
+  }
   if (get_class($page) == 'CRM_Event_Page_EventInfo') {
     $eventId = CRM_Core_Smarty::singleton()->get_template_vars('event')['id'];
     $templateId = civicrm_api3('Event', 'get', [
@@ -219,6 +225,9 @@ function aoeventtemplates_civicrm_pageRun(&$page) {
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_buildForm
  */
 function aoeventtemplates_civicrm_buildForm($formName, &$form) {
+  if (CRM_Core_Config::singleton()->userSystem->is_wordpress) {
+    return;
+  }
   if (in_array($formName, ["CRM_Event_Form_Registration_Register", "CRM_Event_Form_ParticipantFeeSelection"])) {
     $templateId = civicrm_api3('Event', 'get', [
       'id' => $form->_eventId,
