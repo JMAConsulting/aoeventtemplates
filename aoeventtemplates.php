@@ -119,7 +119,7 @@ function aoeventtemplates_civicrm_buildAmount($pageType, &$form, &$amount) {
     'SLO Skill Building',
     'SLO Support Groups - Facilitated',
     'SLO Support Groups - Meetup',
-    'Workshop Community Training',
+    'Workshop - Community Training',
   ];
   if (get_class($form) == "CRM_Event_Form_Registration_Register") {
     $templateId = civicrm_api3('Event', 'get', [
