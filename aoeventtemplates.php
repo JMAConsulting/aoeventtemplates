@@ -129,7 +129,6 @@ function aoeventtemplates_civicrm_buildAmount($pageType, &$form, &$amount) {
     if ($templateId) {
       $template = getEventTemplates($templateId);
       if (in_array($template, $zeroTemplates)) {
-        $form->assign('zeroPrice', TRUE);
         foreach ($amount as $key => &$val) {
           $val['is_display_amounts'] = 0;
           foreach ($val['options'] as $pid => &$pf) {
