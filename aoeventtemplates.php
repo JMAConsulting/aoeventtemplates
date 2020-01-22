@@ -2,6 +2,7 @@
 define('TEMPLATE_ID', 327);
 define('SLOZOOEVENT', 1509);
 define('SLOVAREVENT', 1510);
+define('FUNDRAISING_TEMPLATE', 2606);
 
 require_once 'aoeventtemplates.civix.php';
 
@@ -459,6 +460,9 @@ function getEventTemplates($id) {
  */
 function aoeventtemplates_civicrm_postProcess($formName, &$form) {
   if ($formName == "CRM_Event_Form_ManageEvent_EventInfo" && !empty($form->getVar('_templateId'))) {
+    if ($form->getVar('_templateId') == FUNDRAISING_TEMPLATE) {
+      return;
+    }
     $eventId = CRM_Core_Session::singleton()->get('eventId');
     civicrm_api3('CustomValue', 'create', [
       'entity_id' => $eventId,
@@ -491,10 +495,13 @@ function _aoeventtemplates_copyprice($objectName, &$object) {
 
 function aoeventtemplates_civicrm_post($op, $objectName, $objectId, &$objectRef) {
   if ($op == 'create' && $objectName == 'Event') {
-    CRM_Core_Session::singleton()->set('eventId', $objectId);    
+    CRM_Core_Session::singleton()->set('eventId', $objectId);
     // We also set the template ID here, some intermittent error causes session not to transmit event sometimes.
     if (!empty($objectRef->template_title)) {
       $templateID = CRM_Core_DAO::singleValueQuery("SELECT e.id FROM civicrm_event e INNER JOIN civicrm_option_value v ON v.value = e.event_type_id WHERE v.name = %1 AND v.option_group_id = 15", [1 => [$objectRef->template_title, 'String']]);
+      if ($templateID == FUNDRAISING_TEMPLATE) {
+        return;
+      }
       civicrm_api3('CustomValue', 'create', [
         'entity_id' => $objectId,
         'custom_' . TEMPLATE_ID => $templateID,
