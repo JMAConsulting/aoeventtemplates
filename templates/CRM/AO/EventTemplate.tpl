@@ -29,6 +29,7 @@ CRM.$(function($) {
     case 'Workshop Communication':
     case 'Workshop - Other':
     case 'Workshop - Social':
+    case 'Webinar - Live':
       $('#editrow-'+waiver).hide();
       $('#helprow-'+waiver).hide();
       break;
