@@ -34,7 +34,7 @@ CRM.$( function($) {
   });
 
   function hidePriceSet(type) {
-    var validtypes = ['8','18','9','10','19','20','21','22'];
+    var validtypes = ['8','18','9','10','19','20','21','22', '17'];
     if ($.inArray(type, validtypes) !='-1') {
       $( document ).ajaxComplete(function( event, xhr, settings ) {
         $('.price-field-amount').html('$ 0.00');
