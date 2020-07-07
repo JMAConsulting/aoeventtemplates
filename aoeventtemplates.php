@@ -111,55 +111,6 @@ function aoeventtemplates_civicrm_alterSettingsFolders(&$metaDataFolders = NULL)
   _aoeventtemplates_civix_civicrm_alterSettingsFolders($metaDataFolders);
 }
 
-function aoeventtemplates_civicrm_buildAmount($pageType, &$form, &$amount) {
-  $zeroTemplates = [
-    'Community Awareness',
-    'SLO Evidence Based Programs',
-    'SLO Health & Fitness',
-    'SLO Recreation',
-    'SLO Skill Building',
-    'SLO Support Groups - Facilitated',
-    'SLO Support Groups - Meetup',
-    'Workshop - Community Training',
-    'Webinar - Live',
-  ];
-  if (get_class($form) == "CRM_Event_Form_Registration_Register") {
-    $templateId = civicrm_api3('Event', 'get', [
-      'id' => $form->_eventId,
-      'return.custom_' . TEMPLATE_ID => 1,
-    ])['values'][$form->_eventId]['custom_' . TEMPLATE_ID];
-    if ($templateId) {
-      $template = getEventTemplates($templateId);
-      if (in_array($template, $zeroTemplates)) {
-        foreach ($amount as $key => &$val) {
-          $val['is_display_amounts'] = 0;
-          foreach ($val['options'] as $pid => &$pf) {
-            $pf['amount'] = 0.00;
-          }
-        }
-      }
-    }
-  }
-  if (in_array(get_class($form), ["CRM_Event_Form_Participant", "CRM_Event_Form_ParticipantFeeSelection"]) && $pageType == 'event') {
-    $eventTypes = CRM_Core_OptionGroup::values('event_type');
-    $eventType = CRM_Core_DAO::singleValueQuery("SELECT event_type_id FROM civicrm_event WHERE id = {$form->_eventId}");
-    $templateId = civicrm_api3('Event', 'get', [
-      'id' => $form->_eventId,
-      'return.custom_' . TEMPLATE_ID => 1,
-    ])['values'][$form->_eventId]['custom_' . TEMPLATE_ID];
-    if (!in_array($templateId, [SLOZOOEVENT, SLOVAREVENT]) && in_array($eventTypes[$eventType], $zeroTemplates) && !empty($amount)) {
-      $form->assign('zeroPrice', TRUE);
-      foreach ($amount as $key => &$val) {
-        $val['is_display_amounts'] = 0;
-        foreach ($val['options'] as $pid => &$pf) {
-          $pf['amount'] = 0.00;
-        }
-      }
-
-    }
-  }
-}
-
 function aoeventtemplates_civicrm_links($op, $objectName, $objectId, &$links, &$mask, &$values) {
   if (CRM_Core_Config::singleton()->userSystem->is_wordpress) {
     return;
@@ -384,11 +335,6 @@ function aoeventtemplates_civicrm_buildForm($formName, &$form) {
         });"
       );
     }
-  }
-  if ($formName == "CRM_Event_Form_Participant") {
-    CRM_Core_Region::instance('page-body')->add(array(
-      'template' => 'CRM/AO/Price.tpl',
-    ));
   }
 }
 
