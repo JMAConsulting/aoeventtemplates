@@ -242,7 +242,7 @@ function aoeventtemplates_civicrm_buildForm($formName, &$form) {
       ));
     }
   }
-  if ($formName == "CRM_Event_Form_ManageEvent_EventInfo" && ($form->_action & CRM_Core_Action::ADD)) {
+  if ($formName == "CRM_Event_Form_ManageEvent_EventInfo" && ($form->_action & CRM_Core_Action::ADD) && !$form->getVar('_isTemplate')) {
     $defaults = [
       'start_date' => date('m/d/Y'),
     ];
