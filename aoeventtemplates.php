@@ -393,10 +393,10 @@ function aoeventtemplates_civicrm_validateForm($formName, &$fields, &$files, &$f
       }
     }
   }
-  if ($formName == "CRM_Event_Form_ManageEvent_EventInfo" && !empty($fields['template_title'])) {
+  if ($formName == "CRM_Event_Form_ManageEvent_EventInfo" && !empty($fields['template_title'])  && ($form->_action & CRM_Core_Action::ADD)) {
     if (!empty($fields['template_title'])) {
       // Check if title already exists, else throw error.
-      $title = CRM_Core_DAO::singleValueQuery("SELECT template_title FROM civicrm_event WHERE template_title = %1", ['1' => [$fields['template_title'], 'String']]);
+      $title = CRM_Core_DAO::singleValueQuery("SELECT template_title FROM civicrm_event WHERE template_title = %1 AND is_template = 1", ['1' => [$fields['template_title'], 'String']]);
       if (!empty($title)) {
         $errors['template_title'] = ts('An event template already exists with this title.');
       }
